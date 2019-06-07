@@ -14,10 +14,28 @@ from utils.vae_gui import vae_interact, vae_endless, vae_generate
 from loadModel import loadModel, loadStateDict
 
 
+class VirtualDial:
+    def __init__(self):
+        self.min = -1000
+        self.max = 1000
+        self.value = 0
+
+    def setMinMax(self, min, max):
+        self.min = min
+        self.max = max
+
+    def randomize(self):
+        rand = np.random.randint(self.min, self.max)
+        self.value = rand
+
+    def reset(self):
+        self.value = 0
+
+
 class VAEsemane_GUI(QMainWindow):
     def __init__(self):
         super(VAEsemane_GUI, self).__init__()
-        loadUi('VAEsemane_v2.ui', self)
+        loadUi('raspian_gui.ui', self)
         self.setWindowTitle('VAEsemane')
         self.live_instrument = None
         self.is_running = False
@@ -51,14 +69,10 @@ class VAEsemane_GUI(QMainWindow):
 
         # dials --> get list of dials and sort them by object name
         self.dials = []
-        for i in range(self.dial_grid.count()):
-            item = self.dial_grid.itemAt(i)
-            self.dials.append(item.widget())
-        self.dials.sort(key=lambda x: x.objectName())
+        for i in range(100):
+            self.dials.append(VirtualDial())
         # change range of the dials, default is [-100,100] (in %)
-        for dial in self.dials:
-            dial.setMinimum(-1000)
-            dial.setMaximum(1000)
+
 
         # sliders
         self.lbl_bpm.setText("{} BPM".format(self.slider_bpm.value()))
@@ -131,7 +145,7 @@ class VAEsemane_GUI(QMainWindow):
             self.model.eval()
 
     def set_pretrained_model(self):
-        rel_path = "../utils/pretrained_models/vae_model.pth"
+        rel_path = "utils/pretrained_models/vae_model.pth"
         self.model = VAE()
 
         self.model = loadStateDict(self.model, rel_path)
@@ -165,12 +179,11 @@ class VAEsemane_GUI(QMainWindow):
 
     def btn_randomize_clicked(self):
         for dial in self.dials:
-            rand = np.random.randint(-1000,1000)
-            dial.setSliderPosition(rand)
+            dial.randomize()
 
     def btn_reset_clicked(self):
         for dial in self.dials:
-            dial.setSliderPosition(0)
+            dial.reset()
 
     def test_dials(self):
         for dial in self.dials:

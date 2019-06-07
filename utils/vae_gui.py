@@ -39,7 +39,8 @@ def vae_interact(gui):
             # reparameterize with variance
             dial_vals = []
             for dial in dials:
-                dial_vals.append(dial.value())
+                dial_vals.append(dial.value)
+            print(dial_vals)
             dial_tensor = torch.FloatTensor(dial_vals)/100.
             new = mu + (dial_tensor * 0.5 * logvar.exp())
             pred = model.decoder(new).squeeze(1)
